@@ -1,0 +1,64 @@
+package openEvents.datastore.model.attendee;
+
+import openEvents.datastore.model.util.BaseUserEntity;
+import openEvents.datastore.model.util.Person;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+
+import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import openEvents.datastore.model.event.EventModel;
+
+import java.util.HashSet;
+import java.util.Set;
+
+@Entity
+@DynamicInsert
+@DynamicUpdate
+@Table(name = "attendees")
+public class AttendeeModel extends BaseUserEntity {
+    @Embedded
+    Person attendee;
+
+    @Column(name = "rsvp",nullable = false)
+    private Boolean RSVP;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonBackReference
+    private EventModel event;
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "event_attendance",
+            joinColumns = { @JoinColumn(name = "attendee_id") },
+            inverseJoinColumns = { @JoinColumn(name = "event_id") }
+    )
+    @JsonManagedReference
+    private Set<EventModel> events = new HashSet<>();
+
+    public Person getAttendee() {
+        return attendee;
+    }
+
+    public void setAttendee(Person attendee) {
+        this.attendee = attendee;
+    }
+
+    public boolean isRSVP() {
+        return RSVP;
+    }
+
+    public void setRSVP(Boolean RSVP) {
+        this.RSVP = RSVP;
+    }
+    public EventModel getEvent() {
+        return event;
+    }
+
+    public void setEvent(EventModel event) {
+        this.event = event;
+    }
+
+}
